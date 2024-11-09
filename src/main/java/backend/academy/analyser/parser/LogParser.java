@@ -7,7 +7,9 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LogParser {
 
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.US);
@@ -56,7 +58,7 @@ public class LogParser {
         try {
             return LocalDateTime.parse(logTime, dateTimeFormatter);
         } catch (DateTimeParseException e) {
-            System.err.println("Error parsing log line: " + logTime);
+            log.warn("Error parsing log line: {}", logTime);
         }
         return null;
     }

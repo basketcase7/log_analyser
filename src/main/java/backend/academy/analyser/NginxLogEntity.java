@@ -1,4 +1,4 @@
-package backend.academy.log_analyser;
+package backend.academy.analyser;
 
 import java.time.LocalDateTime;
 
