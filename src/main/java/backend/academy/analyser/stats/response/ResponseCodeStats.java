@@ -7,10 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
+import lombok.Setter;
 
 public class ResponseCodeStats {
 
     @Getter
+    @Setter
     private HashMap<Integer, Integer> responseCodesMap;
 
     public ResponseCodeStats() {
