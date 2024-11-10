@@ -6,8 +6,20 @@ import java.util.Map;
 import java.util.function.Function;
 import static backend.academy.analyser.parser.HttpRequestParser.parseHttpRequest;
 
+/**
+ * Класс, осуществляющий фильтрацию логов по каким-то параметрам
+ *
+ * @param filterField Поле фильтрации
+ * @param filterValue Значение фильтрации
+ */
 public record LogsFilter(String filterField, String filterValue) {
 
+    /**
+     * Фильтрует логи в зависимости от выбранного поля и значения лога
+     *
+     * @param nginxLogEntity Запрос на фильтрацию
+     * @return Результат фильтрации лога по выбранному полю и значению
+     */
     public boolean filter(NginxLogEntity nginxLogEntity) {
         Map<String, Function<NginxLogEntity, Boolean>> filterStrategies = new HashMap<>();
         int methodPosition = 0;
@@ -36,6 +48,14 @@ public record LogsFilter(String filterField, String filterValue) {
         return filterFunction.apply(nginxLogEntity);
     }
 
+    /**
+     * Фильтрует логи в зависимости от того, попадают ли они в выбранный временной диапазон
+     *
+     * @param fromDateTime Дата, до которой логи фильтруются
+     * @param toDateTime Дата, после которой логи фильтруются
+     * @param actualDateTime Дата лога
+     * @return Результат фильтрации лога по заданному временному диапазону
+     */
     public boolean checkFromToDate(LocalDateTime fromDateTime, LocalDateTime toDateTime, LocalDateTime actualDateTime) {
         return actualDateTime.isAfter(fromDateTime) && actualDateTime.isBefore(toDateTime);
     }

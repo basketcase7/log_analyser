@@ -4,6 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
 
+/**
+ * Парсит часть лога, содержащую запрос в массив с запросом, разделенным на составляющие
+ */
 @UtilityClass
 public class HttpRequestParser {
 

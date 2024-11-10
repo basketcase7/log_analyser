@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 
+/**
+ * Основной класс по сбору статистики
+ */
 public class StatsHandler {
 
     @Getter
@@ -43,6 +46,9 @@ public class StatsHandler {
 
     private static final int PERCENTILE = 95;
 
+    /**
+     * Считает количество обработанных логов
+     */
     private void addRequestCount() {
         requestCount++;
     }
@@ -59,6 +65,11 @@ public class StatsHandler {
         sumResponseSize = 0;
     }
 
+    /**
+     * Обновляет статистику во время обратки каждого лога
+     *
+     * @param nginxLogEntity Текущий лог
+     */
     public void updateStats(NginxLogEntity nginxLogEntity) {
         addRequestCount();
         sumResponseSize += nginxLogEntity.bodyBytesSent();
@@ -68,6 +79,9 @@ public class StatsHandler {
         responseSizes.add(nginxLogEntity.bodyBytesSent());
     }
 
+    /**
+     * Считает средний размер ответа и перцентиль размера ответа сервера
+     */
     public void countStats() {
         if (fromTime == LocalDateTime.MIN) {
             fromTime = null;
@@ -79,6 +93,9 @@ public class StatsHandler {
         calculatePercentile();
     }
 
+    /**
+     * Логика подсчета среднего размера ответа сервера
+     */
     private void countResponseAvgSize() {
         if (requestCount == 0) {
             avgResponseSize = 0;
@@ -87,6 +104,9 @@ public class StatsHandler {
         }
     }
 
+    /**
+     * Логика подсчета перцентиля размера ответа сервера
+     */
     private void calculatePercentile() {
         if (responseSizes.isEmpty()) {
             percentile = 0;
@@ -97,6 +117,12 @@ public class StatsHandler {
         percentile = (int) Quantiles.percentiles().index(PERCENTILE).compute(responseSizes);
     }
 
+    /**
+     * Сортирует мапу из строки и числа по убыванию
+     *
+     * @param map Текущая мапа
+     * @return Отсортированная по убыванию мапа
+     */
     public LinkedHashMap<String, Integer> sortRequestMap(Map<String, Integer> map) {
         List<Map.Entry<String, Integer>> list = new LinkedList<>(map.entrySet());
 

@@ -5,6 +5,9 @@ import backend.academy.analyser.reader.LogFileReader;
 import backend.academy.analyser.stats.StatsHandler;
 import java.time.LocalDateTime;
 
+/**
+ * Фабрика для создания экземпляра LocalFileReader
+ */
 public class LocalFileReaderFactory implements LogFileReaderFactory {
 
     @Override

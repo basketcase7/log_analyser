@@ -9,6 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Класс для парсинга строки лога в экземпляр NginxLogEntity
+ */
 @Slf4j
 public class LogParser {
 
@@ -23,6 +26,12 @@ public class LogParser {
     private static final int HTTP_REFERER_GROUP = 7;
     private static final int HTTP_USER_AGENT_GROUP = 8;
 
+    /**
+     * Парсит строку лога в сущность лога
+     *
+     * @param logLine Текущая строка лога
+     * @return Сущность лога
+     */
     public NginxLogEntity parse(String logLine) {
         String regex = "(\\S+) - (\\S+) \\[(.+?)] \"(.+?)\" (\\d{3}) (\\d+) \"(.+?)\" \"(.+?)\"";
 
@@ -35,6 +44,12 @@ public class LogParser {
         return null;
     }
 
+    /**
+     * Заполняет поля для создаваемого экземпляра лога
+     *
+     * @param matcher Шаблон парсинга
+     * @return Экземпляр лога
+     */
     private NginxLogEntity createNginxLogEntity(Matcher matcher) {
 
         String remoteAddr = matcher.group(REMOTE_ADDRESS_GROUP);
@@ -54,6 +69,12 @@ public class LogParser {
             httpUserAgent);
     }
 
+    /**
+     * Парсит время в логе в LocalDateTime
+     *
+     * @param logTime Время в текущем логе
+     * @return Время в LocalDateTime
+     */
     private LocalDateTime parseLocalDateTime(String logTime) {
         try {
             return LocalDateTime.parse(logTime, dateTimeFormatter);

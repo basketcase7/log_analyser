@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Класс, выполняющий логику чтения и обработку файлов с логами при передаче в виде аргумента локального пути
+ */
 @Slf4j
 public class LocalFileReader implements LogFileReader {
 
@@ -38,6 +41,11 @@ public class LocalFileReader implements LogFileReader {
         this.logsFilter = new LogsFilter(filterField, filterValue);
     }
 
+    /**
+     * Метод для поиска необходимых файлов
+     *
+     * @param path Путь, переданный пользователем
+     */
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN")
     @Override
     public void read(String path) {
@@ -60,6 +68,11 @@ public class LocalFileReader implements LogFileReader {
         }
     }
 
+    /**
+     * Метод для потокового чтения файла и сбора статистики
+     *
+     * @param logFilePath Путь к файлу, который необходимо обработать
+     */
     public void processFile(Path logFilePath) {
 
         try (BufferedReader bufferedReader = Files.newBufferedReader(logFilePath)) {
@@ -74,6 +87,11 @@ public class LocalFileReader implements LogFileReader {
         }
     }
 
+    /**
+     * Метод для поиска файлов по шаблону
+     *
+     * @param path Путь, переданный пользователем
+     */
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN")
     private void processWildcardPath(String path) {
         String globPattern = path.replace('\\', '/');

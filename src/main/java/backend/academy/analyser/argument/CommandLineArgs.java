@@ -9,6 +9,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import lombok.Getter;
 
+/**
+ * Класс для валидации и конвертации аргументов командной строки
+ */
 @Getter
 public class CommandLineArgs {
     @Parameter(names = "--path", validateWith = ValidatorPath.class, required = true)
@@ -24,6 +27,9 @@ public class CommandLineArgs {
     @Parameter(names = {"--filter-value"})
     private String filterValue;
 
+    /**
+     * Валидация аргумента пути к лог-файлам
+     */
     public static class ValidatorPath implements IParameterValidator {
 
         @Override
@@ -35,6 +41,9 @@ public class CommandLineArgs {
         }
     }
 
+    /**
+     * Валидация формата записи статистики
+     */
     public static class ValidatorFormat implements IParameterValidator {
 
         @Override
@@ -49,6 +58,9 @@ public class CommandLineArgs {
         }
     }
 
+    /**
+     * Конвертация даты, введенной пользователем
+     */
     public static class DateConverter implements IStringConverter<LocalDateTime> {
         @Override
         public LocalDateTime convert(String isoDateTime) {

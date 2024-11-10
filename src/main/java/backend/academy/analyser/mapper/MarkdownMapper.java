@@ -7,6 +7,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
 
+/**
+ * Преобразует собранную статистику в строку, которая будет записана в markdown файл
+ */
 @SuppressFBWarnings("VA_FORMAT_STRING_USES_NEWLINE")
 @UtilityClass
 public class MarkdownMapper {
@@ -16,6 +19,12 @@ public class MarkdownMapper {
     private final static String VAR_FORMAT_STRING = "|  `%s`  |      %,d |\n";
     private final static String QUANTITY_STRING = "Количество";
 
+    /**
+     * Основной метод, вызывающие все методы по сборе компонентов строки
+     *
+     * @param statsHandler Собранная статистика
+     * @return Строку для записи в markdown
+     */
     public static String mapStatsToMarkdownString(StatsHandler statsHandler) {
         StringBuilder output = new StringBuilder();
 
@@ -37,6 +46,12 @@ public class MarkdownMapper {
         return output.toString();
     }
 
+    /**
+     * Генерация части с основной статистикой
+     *
+     * @param statsHandler Собранная статистика
+     * @return Таблица с основной статистикой
+     */
     private static String generateGeneralInfoTable(StatsHandler statsHandler) {
         StringBuilder output = new StringBuilder();
         output.append("|        Метрика        |     Значение |\n");
@@ -57,16 +72,34 @@ public class MarkdownMapper {
         return output.toString();
     }
 
+    /**
+     * Генерирует таблицу для самых запрашиваемых ресурсах
+     *
+     * @param statsHandler Собранная статистика
+     * @return Таблица с самыми запрашиваемыми ресурсами
+     */
     public static String generateTopRequestedResourcesTable(StatsHandler statsHandler) {
         return generateTableWithSingleMetric("Ресурс", QUANTITY_STRING, statsHandler.sortRequestMap(
             statsHandler.requestStats().requestResourceCounts()));
     }
 
+    /**
+     * Генерирует таблицу для самых запрашиваемых методов
+     *
+     * @param statsHandler Собранная статистика
+     * @return Таблица с самыми запрашиваемыми методами
+     */
     public static String generateTopRequestedMethodsTable(StatsHandler statsHandler) {
         return generateTableWithSingleMetric("Метод", QUANTITY_STRING, statsHandler.sortRequestMap(
             statsHandler.requestStats().requestMethodsCounts()));
     }
 
+    /**
+     * Генерирует таблицу для самых частых кодов ответа сервера
+     *
+     * @param statsHandler Собранная статистика
+     * @return Таблица с самыми частыми кодами ответа сервера
+     */
     private static String generateResponseCodesTable(StatsHandler statsHandler) {
         StringBuilder output = new StringBuilder();
         output.append("| Код |          Имя          | Количество |\n");
@@ -84,11 +117,25 @@ public class MarkdownMapper {
         return output.toString();
     }
 
+    /**
+     * Генерирует таблицу с самыми активными часами записи логов
+     *
+     * @param statsHandler Собранная статистика
+     * @return Таблица с самыми активными часами записи логов
+     */
     public static String generateActiveHoursTable(StatsHandler statsHandler) {
         return generateTableWithSingleMetric("Час", QUANTITY_STRING, statsHandler.sortRequestMap(
             statsHandler.dateStats().hoursRequestCounts()));
     }
 
+    /**
+     * Генерирует таблицу по определенным параметрам
+     *
+     * @param metricName Параметр
+     * @param valueName Количество
+     * @param data Собранная статистика по параметру
+     * @return Таблица по определенным параметрам
+     */
     private static String generateTableWithSingleMetric(
         String metricName,
         String valueName,
@@ -109,6 +156,12 @@ public class MarkdownMapper {
         return output.toString();
     }
 
+    /**
+     * Метод для получения описания кода ответа сервера
+     *
+     * @param code Код ответа
+     * @return Описание
+     */
     private String getStatusName(int code) {
         for (Code status : Code.values()) {
             if (status.code() == code) {

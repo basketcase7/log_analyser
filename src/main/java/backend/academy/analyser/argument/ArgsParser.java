@@ -3,6 +3,9 @@ package backend.academy.analyser.argument;
 import com.beust.jcommander.JCommander;
 import lombok.Getter;
 
+/**
+ * Класс для парсинга аргументов командной строки
+ */
 @Getter
 public class ArgsParser {
 

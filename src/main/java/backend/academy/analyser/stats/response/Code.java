@@ -2,6 +2,9 @@ package backend.academy.analyser.stats.response;
 
 import lombok.Getter;
 
+/**
+ * Enum для самых частых кодов ответа сервера
+ */
 @Getter
 public enum Code {
     CONTINUE(100, "Continue"),

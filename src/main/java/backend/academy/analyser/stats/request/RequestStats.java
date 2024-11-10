@@ -6,6 +6,9 @@ import java.util.Map;
 import lombok.Getter;
 import static backend.academy.analyser.parser.HttpRequestParser.parseHttpRequest;
 
+/**
+ * Собирает статистику по запросам в логах
+ */
 @Getter
 public class RequestStats {
 
@@ -17,6 +20,11 @@ public class RequestStats {
         requestMethodsCounts = new HashMap<>();
     }
 
+    /**
+     * Добавляет по единице в мапы для запрошенных ресурсов и выполненных методов в зависимости от текущего лога
+     *
+     * @param nginxLogEntity Текущий лог
+     */
     public void changeRequestStats(NginxLogEntity nginxLogEntity) {
         String[] parsedHttpRequest = parseHttpRequest(nginxLogEntity.request());
         int methodPositionInHttpRequest = 0;

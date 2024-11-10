@@ -13,6 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Класс, выполняющий логику чтения и обработку файлов с логами при передаче в виде аргумента URL
+ */
 @Slf4j
 @SuppressFBWarnings("URLCONNECTION_SSRF_FD")
 public class UrlLogFileReader implements LogFileReader {
@@ -39,6 +42,11 @@ public class UrlLogFileReader implements LogFileReader {
         this.logsFilter = new LogsFilter(filterField, filterValue);
     }
 
+    /**
+     * Метод, начинающий выполнять чтение по URL
+     *
+     * @param path путь, переданный пользователем
+     */
     @Override
     public void read(String path) {
         if (isValidUrl(path)) {
@@ -46,6 +54,9 @@ public class UrlLogFileReader implements LogFileReader {
         }
     }
 
+    /**
+     * Валидация пути, переданного пользователем по URL
+     */
     public boolean isValidUrl(String path) {
         try {
             URI uri = new URI(path);
@@ -58,6 +69,11 @@ public class UrlLogFileReader implements LogFileReader {
         }
     }
 
+    /**
+     * Метод для потокового чтения файла и сбора статистики
+     *
+     * @param uriString Путь к файлу, который необходимо обработать
+     */
     public void processUrl(String uriString) {
         try {
             URI uri = new URI(uriString);

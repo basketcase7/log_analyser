@@ -9,6 +9,9 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Класс для сбора статистики по ответам сервера
+ */
 public class ResponseCodeStats {
 
     @Getter
@@ -20,16 +23,30 @@ public class ResponseCodeStats {
         initResponseCodeStats();
     }
 
+    /**
+     * Инициализация мапы ответов сервера
+     */
     private void initResponseCodeStats() {
         for (Code code : Code.values()) {
             responseCodesMap.put(code.code(), 0);
         }
     }
 
+    /**
+     * Прибавляет единицу в мапе к встреченному коду ответа
+     *
+     * @param code Текущий код ответа
+     */
     public void changeResponseCodeStats(int code) {
         responseCodesMap.put(code, responseCodesMap.getOrDefault(code, 0) + 1);
     }
 
+    /**
+     * Сортирует мапу с кодами ответа по убыванию
+     *
+     * @param map Мапа встреченных кодов ответа
+     * @return Отсортированная мапа встреченных кодов ответа
+     */
     public LinkedHashMap<Integer, Integer> sortCodeMap(HashMap<Integer, Integer> map) {
         List<Map.Entry<Integer, Integer>> list = new LinkedList<>(map.entrySet());
 

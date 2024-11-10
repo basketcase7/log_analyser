@@ -19,6 +19,9 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Основной класс для работы программы, вызывает основные методы, необходимые для запуска
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class LogAnalyserHandler {
@@ -31,6 +34,9 @@ public class LogAnalyserHandler {
     private final static String ADOC_STRING = "adoc";
     private final static String MARKDOWN_STRING = "markdown";
 
+    /**
+     * Поочередно вызывает методы для работы программы
+     */
     public void handle() {
         LogFileReaderFactory logFileReaderFactory;
 
@@ -87,20 +93,38 @@ public class LogAnalyserHandler {
         saveToFile(String.format(PATH_TO_SAVE, format), outputStats);
     }
 
+    /**
+     * Валидация, является ли строка URL-ом
+     *
+     * @param path Валидируемая строка
+     * @return Результат валидации
+     */
     private boolean isUrl(String path) {
         return path.startsWith("http://") || path.startsWith("https://") || path.startsWith("ftp://");
     }
 
-    private void saveToFile(String filepath, String markdownStats) {
+    /**
+     * Метод для сохранения собранной статистики в файл
+     *
+     * @param filepath Путь, куда будет сохранен файл
+     * @param stringStats Собранная статистика в виде строки
+     */
+    private void saveToFile(String filepath, String stringStats) {
         Path path = Path.of(filepath);
 
         try {
-            Files.writeString(path, markdownStats, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(path, stringStats, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             log.error("Output error: {}", e.getMessage());
         }
     }
 
+    /**
+     * Валидация наличия второго компонента фильтра при наличии первого
+     *
+     * @param filterField Поле для фильтрации
+     * @param filterValue Значение для фильтрации
+     */
     private void filterValidate(String filterField, String filterValue) {
         if (filterField.isEmpty() && !filterValue.isEmpty()) {
             throw new ParameterException("Filter field must be not empty");
