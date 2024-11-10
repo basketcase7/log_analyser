@@ -69,6 +69,13 @@ public class LogAnalyserHandler {
             logFileReaderFactory = new LocalFileReaderFactory();
         }
 
+        if (cmgArgs.fromTime() != null) {
+            fromDate = cmgArgs.fromTime();
+        }
+        if (cmgArgs.toTime() != null) {
+            toDate = cmgArgs.toTime();
+        }
+
         if (Objects.isNull(cmgArgs.outFormat())) {
             format = MARKDOWN_STRING;
         } else {
