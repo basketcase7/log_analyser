@@ -53,18 +53,35 @@ public class LocalFileReader implements LogFileReader {
             processWildcardPath(path);
         } else {
             Path logFilePath = Paths.get(path);
-            if (Files.isDirectory(logFilePath)) {
-                try (Stream<Path> paths = Files.list(logFilePath)) {
-                    paths.filter(Files::isRegularFile)
-                        .forEach(this::processFile);
-                } catch (IOException e) {
-                    log.error("Error reading directory: {}", logFilePath);
-                }
-            } else if (Files.isRegularFile(logFilePath)) {
-                processFile(logFilePath);
+            if (checkIsDirectory(logFilePath)) {
+                processDirectory(logFilePath);
             } else {
-                log.error("Error reading path: {}", logFilePath);
+                processFile(logFilePath);
             }
+        }
+    }
+
+    /**
+     * Метод для проверки, является ли путь директорией
+     *
+     * @param path Путь к файлу или директории
+     * @return является ли путь директорией
+     */
+    private boolean checkIsDirectory(Path path) {
+        return Files.isDirectory(path);
+    }
+
+    /**
+     * Метод для обработки файлов в директории
+     *
+     * @param logFilePath Путь к директории
+     */
+    private void processDirectory(Path logFilePath) {
+        try (Stream<Path> paths = Files.list(logFilePath)) {
+            paths.filter(Files::isRegularFile)
+                .forEach(this::processFile);
+        } catch (IOException e) {
+            log.error("Error reading directory: {}", logFilePath);
         }
     }
 

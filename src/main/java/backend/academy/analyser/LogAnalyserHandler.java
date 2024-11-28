@@ -28,59 +28,29 @@ public class LogAnalyserHandler {
 
     private final String[] args;
 
-    private final static String PATH_TO_SAVE =
-        "output.%s";
+    private final static String PATH_TO_SAVE = "output.%s";
 
     private final static String ADOC_STRING = "adoc";
     private final static String MARKDOWN_STRING = "markdown";
+
+    private LogFileReaderFactory logFileReaderFactory;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
+    private String filterField;
+    private String filterValue;
 
     /**
      * Поочередно вызывает методы для работы программы
      */
     public void handle() {
-        LogFileReaderFactory logFileReaderFactory;
 
-        LocalDateTime fromDate = LocalDateTime.MIN;
-        LocalDateTime toDate = LocalDateTime.MAX;
+        CommandLineArgs cmgArgs = getArgs();
 
-        String format;
-
-        ArgsParser argsParser = new ArgsParser();
-        try {
-            argsParser.handleArgsParser(args);
-        } catch (ParameterException e) {
-            log.error("Argument parsing exception: {}", e.getMessage());
-        }
-
-        CommandLineArgs cmgArgs = argsParser.cmdArgs();
-
-        String filterField = cmgArgs.filterField() != null ? cmgArgs.filterField() : "";
-        String filterValue = cmgArgs.filterValue() != null ? cmgArgs.filterValue() : "";
-
-        if (cmgArgs.filterField() != null && cmgArgs.filterValue() != null) {
-            filterField = cmgArgs.filterField();
-            filterValue = cmgArgs.filterValue();
-        }
+        setFilter(cmgArgs.filterField(), cmgArgs.filterValue());
         filterValidate(filterField, filterValue);
-
-        if (isUrl(cmgArgs.filePath())) {
-            logFileReaderFactory = new UrlLogFileReaderFactory();
-        } else {
-            logFileReaderFactory = new LocalFileReaderFactory();
-        }
-
-        if (cmgArgs.fromTime() != null) {
-            fromDate = cmgArgs.fromTime();
-        }
-        if (cmgArgs.toTime() != null) {
-            toDate = cmgArgs.toTime();
-        }
-
-        if (Objects.isNull(cmgArgs.outFormat())) {
-            format = MARKDOWN_STRING;
-        } else {
-            format = cmgArgs.outFormat();
-        }
+        createLogFileReaderFactory(cmgArgs.filePath());
+        setTime(cmgArgs.fromTime(), cmgArgs.toTime());
+        String format = setFormat(cmgArgs.outFormat());
 
         StatsHandler statsHandler = new StatsHandler(cmgArgs.filePath(), fromDate, toDate);
 
@@ -90,14 +60,86 @@ public class LogAnalyserHandler {
 
         statsHandler.countStats();
 
-        String outputStats = "";
+        String outputStats = mapOutputStats(format, statsHandler);
+        saveToFile(String.format(PATH_TO_SAVE, format), outputStats);
+    }
+
+    /**
+     * Метод для вызова метода форматирования статистики в строку в зависимости от выбранного формата
+     *
+     * @param format Выбранный формат
+     * @param statsHandler Объект с собранной статистикой
+     * @return Строка с отформатированной статистикой
+     */
+    private String mapOutputStats(String format, StatsHandler statsHandler) {
+        String outputStats;
         if (MARKDOWN_STRING.equals(format)) {
             outputStats = MarkdownMapper.mapStatsToMarkdownString(statsHandler);
-        } else if (ADOC_STRING.equals(format)) {
+        } else {
             outputStats = AdocMapper.mapStatsToAdocString(statsHandler);
         }
+        return outputStats;
+    }
 
-        saveToFile(String.format(PATH_TO_SAVE, format), outputStats);
+    /**
+     * Метод для установления определенного формата вывода
+     *
+     * @param format Выбранный пользователем формат
+     * @return Формат с обработкой случая без выбора пользователя
+     */
+    private String setFormat(String format) {
+        return Objects.isNull(format) ? MARKDOWN_STRING : format;
+    }
+
+    /**
+     * Метода для установления фильтра
+     *
+     * @param argFilterField Выбранное поле фильтра
+     * @param argFilterValue Выбранное значение фильтра
+     */
+    private void setFilter(String argFilterField, String argFilterValue) {
+        filterField = Objects.requireNonNullElse(argFilterField, "");
+        filterValue = Objects.requireNonNullElse(argFilterValue, "");
+    }
+
+    /**
+     * Метод для установления начального и конечного времени
+     *
+     * @param from Выбранное начальное время
+     * @param to Выбранное конечное время
+     */
+    private void setTime(LocalDateTime from, LocalDateTime to) {
+        fromDate = Objects.requireNonNullElse(from, LocalDateTime.MIN);
+        toDate = Objects.requireNonNullElse(to, LocalDateTime.MAX);
+    }
+
+    /**
+     * Метод для выбора создания конкретной фабрики ридера в зависимости от пути к логам
+     *
+     * @param path Путь к логам
+     */
+    private void createLogFileReaderFactory(String path) {
+        if (isUrl(path)) {
+            logFileReaderFactory = new UrlLogFileReaderFactory();
+        } else {
+            logFileReaderFactory = new LocalFileReaderFactory();
+        }
+    }
+
+    /**
+     * Метода для получения аргументов из командной строки
+     *
+     * @return Набор элементов командной строки
+     */
+    private CommandLineArgs getArgs() {
+        ArgsParser argsParser = new ArgsParser();
+        try {
+            argsParser.handleArgsParser(args);
+        } catch (ParameterException e) {
+            log.error("Argument parsing exception: {}", e.getMessage());
+        }
+
+        return argsParser.cmdArgs();
     }
 
     /**
@@ -113,7 +155,7 @@ public class LogAnalyserHandler {
     /**
      * Метод для сохранения собранной статистики в файл
      *
-     * @param filepath Путь, куда будет сохранен файл
+     * @param filepath    Путь, куда будет сохранен файл
      * @param stringStats Собранная статистика в виде строки
      */
     private void saveToFile(String filepath, String stringStats) {
@@ -133,10 +175,12 @@ public class LogAnalyserHandler {
      * @param filterValue Значение для фильтрации
      */
     private void filterValidate(String filterField, String filterValue) {
-        if (filterField.isEmpty() && !filterValue.isEmpty()) {
+        boolean isFieldEmpty = filterField.isEmpty();
+        boolean isValueEmpty = filterValue.isEmpty();
+        if (isFieldEmpty && !isValueEmpty) {
             throw new ParameterException("Filter field must be not empty");
         }
-        if (filterValue.isEmpty() && !filterField.isEmpty()) {
+        if (isValueEmpty && !isFieldEmpty) {
             throw new ParameterException("Filter value must be not empty");
         }
     }
